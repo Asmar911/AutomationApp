@@ -1,0 +1,42 @@
+name: Delete assets
+
+on:
+  repository_dispatch:
+    types: [delete]
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+      - name: Delete artefacts and reset state
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+          REQUESTED_BY: ${{ github.event.client_payload.requestedBy || github.actor }}
+        run: |
+          python scripts/delete.py --video-id "$VIDEO_ID" --requested-by "$REQUESTED_BY"
+      - name: Commit database update
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add db/index.json data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: reset ${VIDEO_ID} artefacts"
+            git push
+          fi

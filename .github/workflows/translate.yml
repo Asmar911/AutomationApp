@@ -1,0 +1,55 @@
+name: Translate subtitles
+
+on:
+  repository_dispatch:
+    types: [translate]
+
+permissions:
+  contents: write
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+      - name: Translate via OpenRouter
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+          LANGUAGE: ${{ github.event.client_payload.language }}
+          MODE: ${{ github.event.client_payload.mode || 'auto' }}
+          REQUESTED_BY: ${{ github.event.client_payload.requestedBy || github.actor }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
+        run: |
+          if [ -z "$LANGUAGE" ]; then
+            echo "language is required in the repository_dispatch payload" >&2
+            exit 1
+          fi
+          python scripts/translate.py \
+            --video-id "$VIDEO_ID" \
+            --language "$LANGUAGE" \
+            --mode "$MODE" \
+            --requested-by "$REQUESTED_BY" \
+            --model "$OPENROUTER_MODEL"
+      - name: Commit database update
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add db/index.json data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update ${VIDEO_ID} translation"
+            git push
+          fi
