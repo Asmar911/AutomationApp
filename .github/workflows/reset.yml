@@ -1,0 +1,45 @@
+name: Reset workflow step
+
+on:
+  repository_dispatch:
+    types: [reset-step]
+
+permissions:
+  contents: write
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+      - name: Reset step
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+          STEP: ${{ github.event.client_payload.resetStep }}
+          REQUESTED_BY: ${{ github.event.client_payload.requestedBy || github.actor }}
+        run: |
+          if [ -z "$STEP" ]; then
+            echo "resetStep is required" >&2
+            exit 1
+          fi
+          python scripts/reset_step.py --video-id "$VIDEO_ID" --step "$STEP" --requested-by "$REQUESTED_BY"
+      - name: Commit database update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add db/index.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: reset step"
+            git push
+          fi

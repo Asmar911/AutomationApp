@@ -1,0 +1,52 @@
+name: Download audio
+
+on:
+  repository_dispatch:
+    types: [download]
+
+permissions:
+  contents: write
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+      - name: Download audio via yt-dlp
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+          VIDEO_URL: ${{ github.event.client_payload.sourceUrl }}
+          CHANNEL_ID: ${{ github.event.client_payload.channelId }}
+          REQUESTED_BY: ${{ github.event.client_payload.requestedBy || github.actor }}
+        run: |
+          if [ -z "$VIDEO_URL" ]; then
+            echo "sourceUrl is required in the repository_dispatch payload" >&2
+            exit 1
+          fi
+          python scripts/download.py \
+            --url "$VIDEO_URL" \
+            --video-id "$VIDEO_ID" \
+            --channel-id "$CHANNEL_ID" \
+            --requested-by "$REQUESTED_BY"
+      - name: Commit database update
+        env:
+          VIDEO_ID: ${{ github.event.client_payload.videoId }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add db/index.json data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update ${VIDEO_ID} download"
+            git push
+          fi

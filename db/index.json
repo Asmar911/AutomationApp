@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "updatedAt": "2024-05-12T10:00:00Z",
+  "videos": [
+    {
+      "id": "sample_video",
+      "title": "Sample Automation Demo",
+      "channelId": "demo-channel",
+      "channelTitle": "Automation Channel",
+      "sourceUrl": "https://www.youtube.com/watch?v=sample_video",
+      "durationSeconds": 540,
+      "publishedAt": "2024-05-01T08:00:00Z",
+      "thumbnailUrl": "https://img.youtube.com/vi/sample_video/hqdefault.jpg",
+      "tags": ["demo", "automation"],
+      "createdAt": "2024-05-12T09:00:00Z",
+      "updatedAt": "2024-05-12T10:00:00Z",
+      "download": {
+        "status": "completed",
+        "updatedAt": "2024-05-12T09:05:00Z",
+        "path": "data/sample_video/audio/audio.mp3",
+        "notes": "Placeholder audio file for documentation",
+        "sizeBytes": 1024
+      },
+      "transcription": {
+        "status": "completed",
+        "updatedAt": "2024-05-12T09:20:00Z",
+        "srtPath": "data/sample_video/sample_video.srt",
+        "engine": "parakeet-tdt",
+        "durationSeconds": 540
+      },
+      "split": {
+        "status": "completed",
+        "updatedAt": "2024-05-12T09:30:00Z",
+        "parts": [
+          {
+            "id": "part-1",
+            "label": "Kick-off",
+            "start": 0,
+            "end": 240,
+            "srtPath": "data/sample_video/parts/part-1.srt",
+            "summary": "Introductions and meeting goals"
+          }
+        ],
+        "callsPath": "data/sample_video/parts/calls.jsonl"
+      },
+      "translations": {
+        "ar": {
+          "status": "completed",
+          "updatedAt": "2024-05-12T09:40:00Z",
+          "srtPath": "data/sample_video/translations/ar.srt",
+          "language": "ar",
+          "notes": "Translated via OpenRouter"
+        },
+        "tr": {
+          "status": "completed",
+          "updatedAt": "2024-05-12T09:45:00Z",
+          "srtPath": "data/sample_video/translations/tr.srt",
+          "language": "tr",
+          "notes": "Translated via OpenRouter"
+        }
+      },
+      "metrics": {
+        "storageBytes": 4096,
+        "runtimeSeconds": 540,
+        "parts": 1
+      },
+      "history": [
+        {
+          "timestamp": "2024-05-12T09:05:00Z",
+          "event": "download",
+          "status": "completed",
+          "actor": "workflow/download",
+          "workflow": "download.yml",
+          "notes": "Audio captured with yt-dlp"
+        },
+        {
+          "timestamp": "2024-05-12T09:20:00Z",
+          "event": "transcription",
+          "status": "completed",
+          "actor": "workflow/transcribe",
+          "workflow": "transcribe.yml",
+          "notes": "Parakeet-TDT transcription"
+        },
+        {
+          "timestamp": "2024-05-12T09:30:00Z",
+          "event": "split",
+          "status": "completed",
+          "actor": "workflow/split",
+          "workflow": "split.yml",
+          "notes": "Segments refined with OpenRouter"
+        },
+        {
+          "timestamp": "2024-05-12T09:40:00Z",
+          "event": "translate-ar",
+          "status": "completed",
+          "actor": "workflow/translate",
+          "workflow": "translate.yml",
+          "notes": "Arabic localisation"
+        },
+        {
+          "timestamp": "2024-05-12T09:45:00Z",
+          "event": "translate-tr",
+          "status": "completed",
+          "actor": "workflow/translate",
+          "workflow": "translate.yml",
+          "notes": "Turkish localisation"
+        }
+      ],
+      "lastError": null
+    }
+  ],
+  "analytics": {
+    "totals": {
+      "videos": 1,
+      "downloaded": 1,
+      "transcribed": 1,
+      "split": 1,
+      "translatedAr": 1,
+      "translatedTr": 1,
+      "runtimeSeconds": 540,
+      "storageBytes": 4096
+    },
+    "jobs": {
+      "download": {
+        "lastRunAt": "2024-05-12T09:05:00Z",
+        "success": 1,
+        "failed": 0,
+        "running": 0,
+        "queued": 0
+      },
+      "transcribe": {
+        "lastRunAt": "2024-05-12T09:20:00Z",
+        "success": 1,
+        "failed": 0,
+        "running": 0,
+        "queued": 0
+      },
+      "split": {
+        "lastRunAt": "2024-05-12T09:30:00Z",
+        "success": 1,
+        "failed": 0,
+        "running": 0,
+        "queued": 0
+      },
+      "translate-ar": {
+        "lastRunAt": "2024-05-12T09:40:00Z",
+        "success": 1,
+        "failed": 0,
+        "running": 0,
+        "queued": 0
+      },
+      "translate-tr": {
+        "lastRunAt": "2024-05-12T09:45:00Z",
+        "success": 1,
+        "failed": 0,
+        "running": 0,
+        "queued": 0
+      }
+    },
+    "activeJobs": []
+  }
+}
